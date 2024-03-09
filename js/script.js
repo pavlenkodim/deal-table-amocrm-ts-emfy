@@ -38,6 +38,7 @@ window.addEventListener("DOMContentLoaded", () => {
         clearTable(table);
 
         console.log(response.data);
+        pageSerf(response.data);
 
         for (let i = 0; i < leads.length; i++) {
             let lead = new Lead(i, table, leads[i]);
@@ -46,52 +47,34 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     function pageSerf (data, proxy) { // TODO: Refactor this!!!
-        const prev = document.querySelector('.page_prev'),
-              next = document.querySelector('.page_next'),
-              first = document.querySelector('.first_page'),
-              self = document.createElement('a');
+        const selector = document.querySelector('.page_serf'),
+            // {prev, next, first, self} = document.createElement('a');
+              prev = document.createElement('button'),
+              next = document.createElement('button'),
+              first = document.createElement('button'),
+              self = document.createElement('button');
 
-        // delete events
+        prev.textContent = '<';
+        first.textContent = '1 ...';
+        self.textContent = data._page;
+        next.textContent = '>';
 
-        if(data._page === 1) {
-            prev.classList = 'page_prev not_active';
-        } else {
-            prev.addEventListener('click', event => {
-                event.preventDefault();
-                axios.get(`${proxy}${data._links.prev.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
-                .then(renderTable)
-                .catch(error => {
-                    console.error(error);
-                });
+        selector.innerHTML = '';
 
-                prev.after(self);
-                self.addEventListener('click', event => {
-                    event.preventDefault();
-                    axios.get(`${proxy}${data._links.self.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
-                        .then(renderTable)
-                        .catch(error => {
-                            console.error(error);
-                        })
-                })
-            });
-            first.addEventListener('click', event => {
-                event.preventDefault();
-                axios.get(`${proxy}${data._links.first.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
-                    .then(renderTable)
-                    .catch(error => {
-                        console.error(error);
-                    })
-            })
-        }
+        selector.append(prev);
+        selector.append(first);
+        selector.append(self);
+        selector.append(next);
 
-        next.addEventListener('click', event => {
-            event.preventDefault();
-            axios.get(`${proxy}${data._links.next.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
+        // TODO: Finish this function
+    }
+
+    function getPage(proxy, data, method) {
+        axios.get(`${proxy}${data._links[method].href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
             .then(renderTable)
             .catch(error => {
                 console.error(error);
             })
-        })
     }
-
+    // TODO: Create function for sorted data in table
 });
