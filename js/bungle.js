@@ -4263,7 +4263,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const proxy = "https://thingproxy.freeboard.io/fetch/";
+const proxy = "https://thingproxy.freeboard.io/fetch/"; //
 
 const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFhYjY5Mzc4YTBkM2U5Yjg1YjJjZTNmNGNlN2UxNmNkYTBlMGFhZDczZDlhNDg5NzRjOTE1NTE1NTRjMjEyMTc3YTRjMzQ0NzYxYTUxMDBlIn0.eyJhdWQiOiJkZmQ2ODc5ZC1hMzZkLTQ4NmItYWRjMS03ZDNhYmUyNTkxZjkiLCJqdGkiOiIxYWI2OTM3OGEwZDNlOWI4NWIyY2UzZjRjZTdlMTZjZGEwZTBhYWQ3M2Q5YTQ4OTc0YzkxNTUxNTU0YzIxMjE3N2E0YzM0NDc2MWE1MTAwZSIsImlhdCI6MTcwOTk4NDE2NiwibmJmIjoxNzA5OTg0MTY2LCJleHAiOjE3MTQ1MjE2MDAsInN1YiI6IjEwNzY1MjgyIiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNjE0NDk4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZWM5MTIxNjEtYjUzZi00ZmRjLWI3ZjYtYjgxMDZiZDIyZmVmIn0.m3o3576lu6EFPUkP75S__sJvMu3DsFqDjTO1GPY1J8GKOp2ZO2IUY5sKeRZ0Y80GvHvynstszi4XeuBOrvaiDHg0MZmsa7JwG3naWAROw7o1JTD5oQ6M_pOaXGajggh70NtL5SxVDrnA_urxcAwF74gRH6867hmYS44CWv2skBvT5T4QlAJUHJzYODLsk_LSZXbHdghgy-j7qYz5N8mqmA5uIghXMBPwHe-ZeRxOU651hoPCN7PRUGOcV3RuwRMx6J3yTS1rweqp6SHcYs04F7iEuCu0yTJ9WrTXsIXQ-UjVvjTXCeriskRBiKel77dWbUFvUY22FjiG_qQeyo3WIA"
 window.addEventListener("DOMContentLoaded", () => {
@@ -4287,36 +4287,71 @@ window.addEventListener("DOMContentLoaded", () => {
                 page: page
             }
         })
-        .then(response => {
-            const leads = response.data._embedded.leads;
-            (0,_mobules_cleartable__WEBPACK_IMPORTED_MODULE_1__["default"])(table);
-
-            console.log(response.data);
-
-            for (let i = 0; i < leads.length; i++) {
-                let lead = new _mobules_lead__WEBPACK_IMPORTED_MODULE_0__["default"](i, table, leads[i]);
-                lead.render();
-            }
-        })
+        .then(renderTable)
         .catch(error => {
-            console.log(error);
+            console.error(error);
         });
     }
 
-    function pageSerf (data) {
+    function renderTable(response) {
+        const leads = response.data._embedded.leads;
+        (0,_mobules_cleartable__WEBPACK_IMPORTED_MODULE_1__["default"])(table);
+
+        console.log(response.data);
+
+        for (let i = 0; i < leads.length; i++) {
+            let lead = new _mobules_lead__WEBPACK_IMPORTED_MODULE_0__["default"](i, table, leads[i]);
+            lead.render();
+        }
+    }
+
+    function pageSerf (data, proxy) { // TODO: Refactor this!!!
         const prev = document.querySelector('.page_prev'),
               next = document.querySelector('.page_next'),
-              self = document.querySelector('.this_page');
+              first = document.querySelector('.first_page'),
+              self = document.createElement('a');
+
+        // delete events
 
         if(data._page === 1) {
             prev.classList = 'page_prev not_active';
         } else {
-            prev.addEventListener('click', () => {
-                axios__WEBPACK_IMPORTED_MODULE_3__["default"].get(data._links)
+            prev.addEventListener('click', event => {
+                event.preventDefault();
+                axios__WEBPACK_IMPORTED_MODULE_3__["default"].get(`${proxy}${data._links.prev.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
+                .then(renderTable)
+                .catch(error => {
+                    console.error(error);
+                });
+
+                prev.after(self);
+                self.addEventListener('click', event => {
+                    event.preventDefault();
+                    axios__WEBPACK_IMPORTED_MODULE_3__["default"].get(`${proxy}${data._links.self.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
+                        .then(renderTable)
+                        .catch(error => {
+                            console.error(error);
+                        })
+                })
             });
+            first.addEventListener('click', event => {
+                event.preventDefault();
+                axios__WEBPACK_IMPORTED_MODULE_3__["default"].get(`${proxy}${data._links.first.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
+                    .then(renderTable)
+                    .catch(error => {
+                        console.error(error);
+                    })
+            })
         }
 
-
+        next.addEventListener('click', event => {
+            event.preventDefault();
+            axios__WEBPACK_IMPORTED_MODULE_3__["default"].get(`${proxy}${data._links.next.href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
+            .then(renderTable)
+            .catch(error => {
+                console.error(error);
+            })
+        })
     }
 
 });
