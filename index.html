@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <title>Table</title>
+</head>
+<body>
+    <div class="container">
+        <div class="options">
+            <h2>Сделки с amoCRM</h2>
+            <div class="selector">
+                <label for="select_show">Показать: </label>
+                <select id="select_show" name="show" onchange="handleFruitChange()">
+                    <option value="2">2</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="all">все</option>
+                </select>
+            </div>
+        </div>
+        <div class="table_container">
+            <table class="main_table">
+                <tr class="fields_header">
+                    <td> </td>
+                    <td>ID <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                    <td>Название <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                    <td>Сумма <a href="#" class="sort"><img src="images/arro-up-3100.svg"></a></td>
+                    <td>Клиент <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                    <td>Стадия <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                </tr>
+                <tr class="element">
+                    <td>1</td>
+                    <td>3241</td>
+                    <td>Test</td>
+                    <td>1230000</td>
+                    <td>RED Hat</td>
+                    <td>begin</td>
+                </tr>
+            </table>
+        </div>
+        <div class="page_serf">
+            <button class="page_prev"> < </button> <span class="page_this">1</span> <button class="page_next"> > </button>
+        </div>
+    </div>
+    <script src="js/bungle.js"></script>
+</body>
+</html>
