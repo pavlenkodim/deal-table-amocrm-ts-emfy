@@ -63,3 +63,7 @@ td:hover .sort img{
 .active {
     opacity: 1;
 }
+
+.not_active {
+    opacity: 0.3;
+}
