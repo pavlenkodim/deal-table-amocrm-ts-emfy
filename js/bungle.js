@@ -12,15 +12,34 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ clearTable)
 /* harmony export */ });
-function clearTable (selector) { //TODO: Refactor this!!!
-    selector.innerHTML = '<tr class="fields_header">\n' +
-        '                    <td> </td>\n' +
-        '                    <td>ID <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>\n' +
-        '                    <td>Название <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>\n' +
-        '                    <td>Сумма <a href="#" class="sort"><img src="images/arro-up-3100.svg"></a></td>\n' +
-        '                    <td>Клиент <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>\n' +
-        '                    <td>Стадия <a href="#" class="sort"><img src="images/arrow-down-3101.svg"></a></td>\n' +
-        '                </tr>';
+/* harmony import */ var _sort__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sort */ "./js/mobules/sort.js");
+
+
+function clearTable (selector, data, disable = false) { //TODO: Refactor this
+    if (disable) {
+        return;
+    }
+    selector.innerHTML = `<tr class="fields_header">
+                    <td> </td>
+                    <td>ID <a href="#" name="id" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                    <td>Название <a href="#" name="name" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                    <td>Сумма <a href="#" name="price" class="sort"><img src="images/arro-up-3100.svg"></a></td>
+                    <td>Дата создания <a href="#" name="created_at" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                    <td>Дата изменения <a href="#" name="updated_at" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                    <td>Ответственный <a href="#" name="responsible_user_id" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
+                </tr>`;
+
+    const sortSelector = document.querySelectorAll('.sort');
+
+    sortSelector.forEach(item => {
+       item.addEventListener('click', event => {
+           event.preventDefault();
+
+           const icon = item.querySelector('img');
+           const method = icon.getAttribute('name');
+           (0,_sort__WEBPACK_IMPORTED_MODULE_0__["default"])(data, method);
+       })
+    });
 }
 
 /***/ }),
@@ -35,45 +54,216 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Lead)
 /* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+
+const proxy = 'https://thingproxy.freeboard.io/fetch/';
+const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFhYjY5Mzc4YTBkM2U5Yjg1YjJjZTNmNGNlN2UxNmNkYTBlMGFhZDczZDlhNDg5NzRjOTE1NTE1NTRjMjEyMTc3YTRjMzQ0NzYxYTUxMDBlIn0.eyJhdWQiOiJkZmQ2ODc5ZC1hMzZkLTQ4NmItYWRjMS03ZDNhYmUyNTkxZjkiLCJqdGkiOiIxYWI2OTM3OGEwZDNlOWI4NWIyY2UzZjRjZTdlMTZjZGEwZTBhYWQ3M2Q5YTQ4OTc0YzkxNTUxNTU0YzIxMjE3N2E0YzM0NDc2MWE1MTAwZSIsImlhdCI6MTcwOTk4NDE2NiwibmJmIjoxNzA5OTg0MTY2LCJleHAiOjE3MTQ1MjE2MDAsInN1YiI6IjEwNzY1MjgyIiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNjE0NDk4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZWM5MTIxNjEtYjUzZi00ZmRjLWI3ZjYtYjgxMDZiZDIyZmVmIn0.m3o3576lu6EFPUkP75S__sJvMu3DsFqDjTO1GPY1J8GKOp2ZO2IUY5sKeRZ0Y80GvHvynstszi4XeuBOrvaiDHg0MZmsa7JwG3naWAROw7o1JTD5oQ6M_pOaXGajggh70NtL5SxVDrnA_urxcAwF74gRH6867hmYS44CWv2skBvT5T4QlAJUHJzYODLsk_LSZXbHdghgy-j7qYz5N8mqmA5uIghXMBPwHe-ZeRxOU651hoPCN7PRUGOcV3RuwRMx6J3yTS1rweqp6SHcYs04F7iEuCu0yTJ9WrTXsIXQ-UjVvjTXCeriskRBiKel77dWbUFvUY22FjiG_qQeyo3WIA"
+
+
 class Lead {
+    responsibleName = '';
+    dateAdd = 'today';
+    dateMod = 'tomorrow';
     constructor(counter,selector, data) {
-        this.counter = counter
+        this.counter = counter; // TODO: Make something to counter!!
         this.selector = selector;
         this.data = data;
     }
 
-    getCompanyName(id) {
-        return id;
+    getDates (create, update) {
+        this.dateAdd = this.fromUNIXtoDate(create);
+        this.dateMod = this.fromUNIXtoDate(update);
+    }
+
+    fromUNIXtoDate(unix) {
+        const date = new Date(unix * 1000),
+              year = date.getFullYear(),
+              month = "0" + date.getMonth(),
+              day = "0" + date.getDate(),
+              hours = date.getHours(),
+              minutes = "0" + date.getMinutes(),
+              seconds = "0" + date.getSeconds();
+
+        return `${hours}:${minutes.substr(-2)}:${seconds.substr(-2)} ${day.substr(-2)}.${month.substr(-2)}.${year}`;
+    }
+
+    async getResponsible(id) {
+        await axios__WEBPACK_IMPORTED_MODULE_0__["default"].get(`${proxy}https://pavlenkodim.amocrm.ru/api/v4/users/${id}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
+            .then(response => {
+                this.responsibleName = response.data.name;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return this.responsibleName;
     }
 
     render() {
+        this.getDates(this.data.created_at, this.data.updated_at);
         const element = document.createElement('tr');
         element.classList = 'element';
         element.innerHTML = `
-            <td>${this.counter + 1}</td>
+            <td></td>
             <td>${this.data.id}</td>
             <td>${this.data.name}</td>
             <td>${this.data.price}</td>
-            <td>${this.getCompanyName(this.data._embedded.companies[0])}</td>
-            <td>${this}</td>`;
+            <td>${this.dateAdd}</td>
+            <td>${this.dateMod}</td>
+            <td>${this.responsibleName}</td>`;
         this.selector.append(element);
     }
 }
 
 /***/ }),
 
-/***/ "./js/mobules/preloader.js":
-/*!*********************************!*\
-  !*** ./js/mobules/preloader.js ***!
-  \*********************************/
+/***/ "./js/mobules/pageserf.js":
+/*!********************************!*\
+  !*** ./js/mobules/pageserf.js ***!
+  \********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ preloader)
+/* harmony export */   "default": () => (/* binding */ pageSerf)
 /* harmony export */ });
-function preloader () { // TODO: Create function
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+/* harmony import */ var _rendertable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./rendertable */ "./js/mobules/rendertable.js");
 
+
+
+const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFhYjY5Mzc4YTBkM2U5Yjg1YjJjZTNmNGNlN2UxNmNkYTBlMGFhZDczZDlhNDg5NzRjOTE1NTE1NTRjMjEyMTc3YTRjMzQ0NzYxYTUxMDBlIn0.eyJhdWQiOiJkZmQ2ODc5ZC1hMzZkLTQ4NmItYWRjMS03ZDNhYmUyNTkxZjkiLCJqdGkiOiIxYWI2OTM3OGEwZDNlOWI4NWIyY2UzZjRjZTdlMTZjZGEwZTBhYWQ3M2Q5YTQ4OTc0YzkxNTUxNTU0YzIxMjE3N2E0YzM0NDc2MWE1MTAwZSIsImlhdCI6MTcwOTk4NDE2NiwibmJmIjoxNzA5OTg0MTY2LCJleHAiOjE3MTQ1MjE2MDAsInN1YiI6IjEwNzY1MjgyIiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNjE0NDk4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZWM5MTIxNjEtYjUzZi00ZmRjLWI3ZjYtYjgxMDZiZDIyZmVmIn0.m3o3576lu6EFPUkP75S__sJvMu3DsFqDjTO1GPY1J8GKOp2ZO2IUY5sKeRZ0Y80GvHvynstszi4XeuBOrvaiDHg0MZmsa7JwG3naWAROw7o1JTD5oQ6M_pOaXGajggh70NtL5SxVDrnA_urxcAwF74gRH6867hmYS44CWv2skBvT5T4QlAJUHJzYODLsk_LSZXbHdghgy-j7qYz5N8mqmA5uIghXMBPwHe-ZeRxOU651hoPCN7PRUGOcV3RuwRMx6J3yTS1rweqp6SHcYs04F7iEuCu0yTJ9WrTXsIXQ-UjVvjTXCeriskRBiKel77dWbUFvUY22FjiG_qQeyo3WIA";
+
+function pageSerf (data, proxy) { // TODO: Refactor this function!!!
+    const selector = document.querySelector('.page_serf'),
+        prev = document.createElement('button'),
+        next = document.createElement('button'),
+        first = document.createElement('button'),
+        self = document.createElement('button');
+
+    prev.textContent = '<';
+    first.textContent = '1';
+    self.textContent = data._page;
+    next.textContent = '>';
+
+    selector.innerHTML = '';
+
+    if (data._links.prev) {
+        selector.append(prev);
+        prev.addEventListener('click', event => {
+            event.preventDefault();
+            getPage(proxy, data, 'prev');
+        });
+    }
+
+    if (data._links.first) {
+        selector.append(first);
+        first.addEventListener('click', event => {
+            event.preventDefault();
+            getPage(proxy, data, 'first');
+        });
+    }
+
+    if (data._links.self) {
+        selector.append(self);
+        self.addEventListener('click', event => {
+            event.preventDefault();
+            // getPage(proxy, data, 'self');
+        });
+    }
+
+    if (data._links.next) {
+        selector.append(next);
+        next.addEventListener('click', event => {
+            event.preventDefault();
+            getPage(proxy, data, 'next');
+        });
+    }
+    function getPage(proxy, data, method) {
+        axios__WEBPACK_IMPORTED_MODULE_1__["default"].get(`${proxy}${data._links[method].href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
+            .then(_rendertable__WEBPACK_IMPORTED_MODULE_0__["default"])
+            .catch(error => {
+                console.error(error);
+            })
+    }
+}
+
+/***/ }),
+
+/***/ "./js/mobules/rendertable.js":
+/*!***********************************!*\
+  !*** ./js/mobules/rendertable.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ renderTable)
+/* harmony export */ });
+/* harmony import */ var _cleartable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./cleartable */ "./js/mobules/cleartable.js");
+/* harmony import */ var _pageserf__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./pageserf */ "./js/mobules/pageserf.js");
+/* harmony import */ var _lead__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./lead */ "./js/mobules/lead.js");
+
+
+
+
+const table = document.querySelector('.main_table'),
+      proxy = "https://thingproxy.freeboard.io/fetch/";
+
+function renderTable(response) {
+    const leads = response.data._embedded.leads;
+    (0,_cleartable__WEBPACK_IMPORTED_MODULE_0__["default"])(table);
+
+    console.log(response.data);
+    (0,_pageserf__WEBPACK_IMPORTED_MODULE_1__["default"])(response.data, proxy);
+
+    for (let i = 0; i < leads.length; i++) {
+        let lead = new _lead__WEBPACK_IMPORTED_MODULE_2__["default"](i, table, leads[i]);
+        lead.getResponsible(leads[i].responsible_user_id)
+            .then(() => {
+            lead.render();
+        })
+            .catch(error => {
+            console.log(error);
+        });
+    }
+}
+
+/***/ }),
+
+/***/ "./js/mobules/sort.js":
+/*!****************************!*\
+  !*** ./js/mobules/sort.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ sort)
+/* harmony export */ });
+// TODO: Create function for sorted data in table
+function sort(data, method) {
+    switch (method) {
+        case 'name' :
+            break;
+        case 'price' :
+            sortNum();
+            break;
+        case 'id' :
+            sortNum();
+            break;
+        case 'created_at' :
+            sortNum();
+            break;
+        case 'updated_at' :
+            sortNum();
+            break;
+        case 'responsible_user_id' :
+            break;
+    }
+
+    function sortNum() {
+
+    }
 }
 
 /***/ }),
@@ -4254,24 +4444,21 @@ var __webpack_exports__ = {};
   !*** ./js/script.js ***!
   \**********************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
-/* harmony import */ var _mobules_lead__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mobules/lead */ "./js/mobules/lead.js");
-/* harmony import */ var _mobules_cleartable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mobules/cleartable */ "./js/mobules/cleartable.js");
-/* harmony import */ var _mobules_preloader__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mobules/preloader */ "./js/mobules/preloader.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/lib/axios.js");
+/* harmony import */ var _mobules_rendertable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mobules/rendertable */ "./js/mobules/rendertable.js");
 
 
 
 
+const proxy = "https://thingproxy.freeboard.io/fetch/";
+const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFhYjY5Mzc4YTBkM2U5Yjg1YjJjZTNmNGNlN2UxNmNkYTBlMGFhZDczZDlhNDg5NzRjOTE1NTE1NTRjMjEyMTc3YTRjMzQ0NzYxYTUxMDBlIn0.eyJhdWQiOiJkZmQ2ODc5ZC1hMzZkLTQ4NmItYWRjMS03ZDNhYmUyNTkxZjkiLCJqdGkiOiIxYWI2OTM3OGEwZDNlOWI4NWIyY2UzZjRjZTdlMTZjZGEwZTBhYWQ3M2Q5YTQ4OTc0YzkxNTUxNTU0YzIxMjE3N2E0YzM0NDc2MWE1MTAwZSIsImlhdCI6MTcwOTk4NDE2NiwibmJmIjoxNzA5OTg0MTY2LCJleHAiOjE3MTQ1MjE2MDAsInN1YiI6IjEwNzY1MjgyIiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNjE0NDk4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZWM5MTIxNjEtYjUzZi00ZmRjLWI3ZjYtYjgxMDZiZDIyZmVmIn0.m3o3576lu6EFPUkP75S__sJvMu3DsFqDjTO1GPY1J8GKOp2ZO2IUY5sKeRZ0Y80GvHvynstszi4XeuBOrvaiDHg0MZmsa7JwG3naWAROw7o1JTD5oQ6M_pOaXGajggh70NtL5SxVDrnA_urxcAwF74gRH6867hmYS44CWv2skBvT5T4QlAJUHJzYODLsk_LSZXbHdghgy-j7qYz5N8mqmA5uIghXMBPwHe-ZeRxOU651hoPCN7PRUGOcV3RuwRMx6J3yTS1rweqp6SHcYs04F7iEuCu0yTJ9WrTXsIXQ-UjVvjTXCeriskRBiKel77dWbUFvUY22FjiG_qQeyo3WIA";
 
-const proxy = "https://thingproxy.freeboard.io/fetch/"; //
-
-const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFhYjY5Mzc4YTBkM2U5Yjg1YjJjZTNmNGNlN2UxNmNkYTBlMGFhZDczZDlhNDg5NzRjOTE1NTE1NTRjMjEyMTc3YTRjMzQ0NzYxYTUxMDBlIn0.eyJhdWQiOiJkZmQ2ODc5ZC1hMzZkLTQ4NmItYWRjMS03ZDNhYmUyNTkxZjkiLCJqdGkiOiIxYWI2OTM3OGEwZDNlOWI4NWIyY2UzZjRjZTdlMTZjZGEwZTBhYWQ3M2Q5YTQ4OTc0YzkxNTUxNTU0YzIxMjE3N2E0YzM0NDc2MWE1MTAwZSIsImlhdCI6MTcwOTk4NDE2NiwibmJmIjoxNzA5OTg0MTY2LCJleHAiOjE3MTQ1MjE2MDAsInN1YiI6IjEwNzY1MjgyIiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNjE0NDk4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZWM5MTIxNjEtYjUzZi00ZmRjLWI3ZjYtYjgxMDZiZDIyZmVmIn0.m3o3576lu6EFPUkP75S__sJvMu3DsFqDjTO1GPY1J8GKOp2ZO2IUY5sKeRZ0Y80GvHvynstszi4XeuBOrvaiDHg0MZmsa7JwG3naWAROw7o1JTD5oQ6M_pOaXGajggh70NtL5SxVDrnA_urxcAwF74gRH6867hmYS44CWv2skBvT5T4QlAJUHJzYODLsk_LSZXbHdghgy-j7qYz5N8mqmA5uIghXMBPwHe-ZeRxOU651hoPCN7PRUGOcV3RuwRMx6J3yTS1rweqp6SHcYs04F7iEuCu0yTJ9WrTXsIXQ-UjVvjTXCeriskRBiKel77dWbUFvUY22FjiG_qQeyo3WIA"
 window.addEventListener("DOMContentLoaded", () => {
-    const table = document.querySelector('.main_table'),
-          showSelector = document.querySelector('#select_show');
+    const showSelector = document.querySelector('#select_show');
+
 
     showSelector.addEventListener('change', () => {
-        if (showSelector.value === 'все') {
+        if (showSelector.value === 'все') { // TODO: Doesn't work as it should!!!
             getLeads(250);
         }
         getLeads(showSelector.value);
@@ -4280,63 +4467,18 @@ window.addEventListener("DOMContentLoaded", () => {
     getLeads(showSelector.value);
 
     function getLeads (limit, page = 1) {
-        axios__WEBPACK_IMPORTED_MODULE_3__["default"].get(`${proxy}https://pavlenkodim.amocrm.ru/api/v4/leads`, {
+        axios__WEBPACK_IMPORTED_MODULE_1__["default"].get(`${proxy}https://pavlenkodim.amocrm.ru/api/v4/leads`, {
             headers: {'Authorization':`Bearer ${accessToken}`},
             params: {
                 limit: limit,
                 page: page
             }
         })
-        .then(renderTable)
+        .then(_mobules_rendertable__WEBPACK_IMPORTED_MODULE_0__["default"])
         .catch(error => {
             console.error(error);
         });
     }
-
-    function renderTable(response) {
-        const leads = response.data._embedded.leads;
-        (0,_mobules_cleartable__WEBPACK_IMPORTED_MODULE_1__["default"])(table);
-
-        console.log(response.data);
-        pageSerf(response.data);
-
-        for (let i = 0; i < leads.length; i++) {
-            let lead = new _mobules_lead__WEBPACK_IMPORTED_MODULE_0__["default"](i, table, leads[i]);
-            lead.render();
-        }
-    }
-
-    function pageSerf (data, proxy) { // TODO: Refactor this!!!
-        const selector = document.querySelector('.page_serf'),
-            // {prev, next, first, self} = document.createElement('a');
-              prev = document.createElement('button'),
-              next = document.createElement('button'),
-              first = document.createElement('button'),
-              self = document.createElement('button');
-
-        prev.textContent = '<';
-        first.textContent = '1 ...';
-        self.textContent = data._page;
-        next.textContent = '>';
-
-        selector.innerHTML = '';
-
-        selector.append(prev);
-        selector.append(first);
-        selector.append(self);
-        selector.append(next);
-
-        // TODO: Finish this function
-    }
-
-    function getPage(proxy, data, method) {
-        axios__WEBPACK_IMPORTED_MODULE_3__["default"].get(`${proxy}${data._links[method].href}`, {headers: {'Authorization':`Bearer ${accessToken}`}})
-            .then(renderTable)
-            .catch(error => {
-                console.error(error);
-            })
-    }
-    // TODO: Create function for sorted data in table
 });
 })();
 
