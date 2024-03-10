@@ -4,6 +4,7 @@ const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFhYjY5Mzc4YTB
 
 
 export default class Lead {
+    lead;
     responsibleName = '';
     dateAdd = 'today';
     dateMod = 'tomorrow';
@@ -53,6 +54,6 @@ export default class Lead {
             <td>${this.dateAdd}</td>
             <td>${this.dateMod}</td>
             <td>${this.responsibleName}</td>`;
-        this.selector.append(element);
+        return element;
     }
 }

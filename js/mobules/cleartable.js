@@ -1,6 +1,4 @@
-import sort from "./sort";
-
-export default function clearTable (selector, data, disable = false) { //TODO: Refactor this
+export default function clearTable (selector, disable = false) { //TODO: Refactor this
     if (disable) {
         return;
     }
@@ -8,21 +6,9 @@ export default function clearTable (selector, data, disable = false) { //TODO: R
                     <td> </td>
                     <td>ID <a href="#" name="id" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Название <a href="#" name="name" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
-                    <td>Сумма <a href="#" name="price" class="sort"><img src="images/arro-up-3100.svg"></a></td>
+                    <td>Сумма <a href="#" name="price" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Дата создания <a href="#" name="created_at" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Дата изменения <a href="#" name="updated_at" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Ответственный <a href="#" name="responsible_user_id" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                 </tr>`;
-
-    const sortSelector = document.querySelectorAll('.sort');
-
-    sortSelector.forEach(item => {
-       item.addEventListener('click', event => {
-           event.preventDefault();
-
-           const icon = item.querySelector('img');
-           const method = icon.getAttribute('name');
-           sort(data, method);
-       })
-    });
 }

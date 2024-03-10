@@ -39,12 +39,7 @@ table {
 }
 
 .sort img {
-    opacity: 0;
     width: 10px;
-}
-
-td:hover .sort img{
-    opacity: 0.5;
 }
 
 .page_serf {

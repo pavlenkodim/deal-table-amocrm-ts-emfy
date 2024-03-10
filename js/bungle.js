@@ -12,10 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ clearTable)
 /* harmony export */ });
-/* harmony import */ var _sort__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sort */ "./js/mobules/sort.js");
-
-
-function clearTable (selector, data, disable = false) { //TODO: Refactor this
+function clearTable (selector, disable = false) { //TODO: Refactor this
     if (disable) {
         return;
     }
@@ -23,23 +20,11 @@ function clearTable (selector, data, disable = false) { //TODO: Refactor this
                     <td> </td>
                     <td>ID <a href="#" name="id" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Название <a href="#" name="name" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
-                    <td>Сумма <a href="#" name="price" class="sort"><img src="images/arro-up-3100.svg"></a></td>
+                    <td>Сумма <a href="#" name="price" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Дата создания <a href="#" name="created_at" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Дата изменения <a href="#" name="updated_at" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                     <td>Ответственный <a href="#" name="responsible_user_id" class="sort"><img src="images/arrow-down-3101.svg"></a></td>
                 </tr>`;
-
-    const sortSelector = document.querySelectorAll('.sort');
-
-    sortSelector.forEach(item => {
-       item.addEventListener('click', event => {
-           event.preventDefault();
-
-           const icon = item.querySelector('img');
-           const method = icon.getAttribute('name');
-           (0,_sort__WEBPACK_IMPORTED_MODULE_0__["default"])(data, method);
-       })
-    });
 }
 
 /***/ }),
@@ -61,6 +46,7 @@ const accessToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFhYjY5Mzc4YTB
 
 
 class Lead {
+    lead;
     responsibleName = '';
     dateAdd = 'today';
     dateMod = 'tomorrow';
@@ -110,7 +96,7 @@ class Lead {
             <td>${this.dateAdd}</td>
             <td>${this.dateMod}</td>
             <td>${this.responsibleName}</td>`;
-        this.selector.append(element);
+        return element;
     }
 }
 
@@ -202,6 +188,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _cleartable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./cleartable */ "./js/mobules/cleartable.js");
 /* harmony import */ var _pageserf__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./pageserf */ "./js/mobules/pageserf.js");
 /* harmony import */ var _lead__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./lead */ "./js/mobules/lead.js");
+/* harmony import */ var _sort__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sort */ "./js/mobules/sort.js");
+
 
 
 
@@ -209,22 +197,42 @@ __webpack_require__.r(__webpack_exports__);
 const table = document.querySelector('.main_table'),
       proxy = "https://thingproxy.freeboard.io/fetch/";
 
-function renderTable(response) {
-    const leads = response.data._embedded.leads;
+function renderTable(response, newLeads = null) {
+    let leads = response.data._embedded.leads;
     (0,_cleartable__WEBPACK_IMPORTED_MODULE_0__["default"])(table);
+
+    const sortSelector = document.querySelectorAll('.sort');
+    sortSelector.forEach(item => {
+        item.addEventListener('click', event => {
+            event.preventDefault();
+            const method = item.getAttribute('name');
+            const result = (0,_sort__WEBPACK_IMPORTED_MODULE_3__["default"])(leads, method);
+            renderTable(response, result);
+        });
+    });
 
     console.log(response.data);
     (0,_pageserf__WEBPACK_IMPORTED_MODULE_1__["default"])(response.data, proxy);
 
-    for (let i = 0; i < leads.length; i++) {
-        let lead = new _lead__WEBPACK_IMPORTED_MODULE_2__["default"](i, table, leads[i]);
-        lead.getResponsible(leads[i].responsible_user_id)
-            .then(() => {
-            lead.render();
-        })
-            .catch(error => {
-            console.log(error);
-        });
+    if (newLeads) {
+        leads = newLeads;
+    }
+
+    async function addDOM() {
+        let element;
+        for (let i = 0; i < leads.length; i++) {
+            let lead = new _lead__WEBPACK_IMPORTED_MODULE_2__["default"](i, table, leads[i]);
+            lead.getResponsible(leads[i].responsible_user_id)
+                .then(() => {
+                    let elRend = lead.render();
+                    element.push(elRend);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+
+        return await element;
     }
 }
 
@@ -240,30 +248,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ sort)
 /* harmony export */ });
+/* harmony import */ var _rendertable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./rendertable */ "./js/mobules/rendertable.js");
 // TODO: Create function for sorted data in table
-function sort(data, method) {
-    switch (method) {
-        case 'name' :
-            break;
-        case 'price' :
-            sortNum();
-            break;
-        case 'id' :
-            sortNum();
-            break;
-        case 'created_at' :
-            sortNum();
-            break;
-        case 'updated_at' :
-            sortNum();
-            break;
-        case 'responsible_user_id' :
-            break;
-    }
 
-    function sortNum() {
-
-    }
+function sort(leads, method) {
+    return leads.sort(function (a, b) {
+        if (a[method] > b[method]) {
+            return 1;
+        }
+        if (a[method] < b[method]) {
+            return -1;
+        }
+        return 0;
+    });
 }
 
 /***/ }),

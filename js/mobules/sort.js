@@ -1,25 +1,13 @@
 // TODO: Create function for sorted data in table
-export default function sort(data, method) {
-    switch (method) {
-        case 'name' :
-            break;
-        case 'price' :
-            sortNum();
-            break;
-        case 'id' :
-            sortNum();
-            break;
-        case 'created_at' :
-            sortNum();
-            break;
-        case 'updated_at' :
-            sortNum();
-            break;
-        case 'responsible_user_id' :
-            break;
-    }
-
-    function sortNum() {
-
-    }
+import renderTable from "./rendertable";
+export default function sort(leads, method) {
+    return leads.sort(function (a, b) {
+        if (a[method] > b[method]) {
+            return 1;
+        }
+        if (a[method] < b[method]) {
+            return -1;
+        }
+        return 0;
+    });
 }
