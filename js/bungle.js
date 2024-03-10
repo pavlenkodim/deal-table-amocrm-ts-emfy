@@ -12,7 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ clearTable)
 /* harmony export */ });
-function clearTable (selector, disable = false) { //TODO: Refactor this
+function clearTable (selector, disable = false) { //TODO: Refactor this !!!
     if (disable) {
         return;
     }
@@ -51,7 +51,7 @@ class Lead {
     dateAdd = 'today';
     dateMod = 'tomorrow';
     constructor(counter,selector, data) {
-        this.counter = counter; // TODO: Make something to counter!!
+        this.counter = counter; // TODO: Make something to counter!! Not used now.
         this.selector = selector;
         this.data = data;
     }
@@ -264,9 +264,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ sort)
 /* harmony export */ });
-/* harmony import */ var _rendertable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./rendertable */ "./js/mobules/rendertable.js");
-// TODO: Create function for sorted data in table
-
 function sort(leads, method) {
     return leads.sort(function (a, b) {
         if (a[method] > b[method]) {

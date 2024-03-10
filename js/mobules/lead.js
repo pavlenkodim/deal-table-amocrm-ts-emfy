@@ -9,7 +9,7 @@ export default class Lead {
     dateAdd = 'today';
     dateMod = 'tomorrow';
     constructor(counter,selector, data) {
-        this.counter = counter; // TODO: Make something to counter!!
+        this.counter = counter; // TODO: Make something to counter!! Not used now.
         this.selector = selector;
         this.data = data;
     }

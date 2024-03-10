@@ -1,4 +1,4 @@
-export default function clearTable (selector, disable = false) { //TODO: Refactor this
+export default function clearTable (selector, disable = false) { //TODO: Refactor this !!!
     if (disable) {
         return;
     }
