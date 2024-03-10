@@ -27,20 +27,36 @@ export default function renderTable(response, newLeads = null) {
         leads = newLeads;
     }
 
+    addDOM().then(leadsEl => {
+        leadsEl.forEach(item => {
+            table.append(item);
+        })
+    })
+
+    // for (let i = 0; i < leads.length; i++) {
+    //     let lead = new Lead(table, leads[i]);
+    //     lead.getResponsible(leads[i].responsible_user_id)
+    //         .then(() => {
+    //             let elRend = lead.render();
+    //             table.append(elRend);
+    //         })
+    //         .catch(error => {
+    //             console.log(error);
+    //         });
+    // }
     async function addDOM() {
-        let element;
-        for (let i = 0; i < leads.length; i++) {
-            let lead = new Lead(i, table, leads[i]);
-            lead.getResponsible(leads[i].responsible_user_id)
-                .then(() => {
+        let elements = [];
+        for (let item of leads) {
+            let lead = new Lead(1, table, item);
+            await lead.getResponsible(item.responsible_user_id)
+                .then(async () => {
                     let elRend = lead.render();
-                    element.push(elRend);
+                    await elements.push(elRend);
                 })
                 .catch(error => {
                     console.log(error);
                 });
         }
-
-        return await element;
+        return await elements;
     }
 }
